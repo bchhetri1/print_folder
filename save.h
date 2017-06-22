@@ -7,11 +7,21 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <iostream>
 #include <fstream>
+#include "save.h"
+
+
+#define filename "archive.txt"
 
 using namespace std;
 using namespace boost::archive;
+
+// store whether a given file was printed
 std::map<int,bool> data;
 
-void save_map(off_t key, bool val);
+// serialize the map
+void save();
 
-void load_map();
+// load the map
+void load();
+
+void add_to_map(off_t key, bool val);
