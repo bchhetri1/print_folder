@@ -9,19 +9,47 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <cups/cups.h>
+#include <map>
+#include <sys/stat.h>
+#include <sstream>
+#include <boost/serialization/map.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <fstream>
 
-char * inodes[128];		/* Keeps track of all the files (names) added to the folder */
-int idx;				/* Index of where we are in the array */
-int g_fd;				/* file descriptor for the folder we are monitoring */
 
-int main();
+using namespace std;
+using namespace boost::archive;
 
-/* If a change has been detected on the folder (i.e. a file was added or removed) then
-we will look for a new file, thus making a distinction from a modification even.
-If the new file is present, it will be sent to the printer. */
+#define filename "archive.txt"
 
-void handle_changes();
 
-/* Checks to see if the new file was added or an existing file was modified.
- If an existing file was modified, no action is taken. */
-int exists(char * c);
+class PrintFolder{
+	/* If a change has been detected on the folder (i.e. a file was added or removed) then
+	we will look for a new file, thus making a distinction from a modification even.
+	If the new file is present, it will be sent to the printer. */
+public:
+	void handle_changes();
+
+	/* serialize the map*/
+
+	void save();
+
+	/* load the map from file */
+	void load();
+
+	/* add a (k,v) to map */
+	void add_to_map(std::pair<dev_t,ino_t> key, bool val);
+
+	/* getter */
+	void get_from_map(std::pair<dev_t,ino_t> key){}
+private:
+	std::map<std::pair<dev_t,ino_t>,bool> data;
+
+};
+
+int main(){
+	return 0;
+}

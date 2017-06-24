@@ -2,14 +2,15 @@
 
 
 
-void save()
+
+void SaveData::save()
 {
 	std::ofstream file{filename};
 	text_oarchive oa{file};
 	oa << data;
 }
 
-void load(){
+void SaveData::load(){
 
 	std::ifstream file{filename};
 	file.seekg (0, file.end);
@@ -21,6 +22,6 @@ void load(){
 	ia >> data;
 }
 
-void add_to_map(off_t key, bool val){
+void SaveData::add_to_map(off_t key, bool val){
 	data[key] = val;
 }

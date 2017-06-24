@@ -16,12 +16,14 @@ using namespace std;
 using namespace boost::archive;
 
 // store whether a given file was printed
-std::map<int,bool> data;
-
-// serialize the map
-void save();
-
-// load the map
-void load();
-
-void add_to_map(off_t key, bool val);
+class SaveData{
+public:
+	// serialize the map
+	void save();
+	// load the map
+	void load();
+	void add_to_map(std::pair<dev_t,ino_t>,bool> key, bool val);
+private:
+	std::map<std::pair<dev_t,ino_t>,bool> data;
+	std::string directory;
+}

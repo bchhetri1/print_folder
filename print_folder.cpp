@@ -1,28 +1,6 @@
 #include "print_folder.h"
-#include "/Users/Bhawesh/Downloads/uthash-master/src/uthash.h"
 
-/* A better implementation would not use kevent
-so that there would be no use of checking if it already exists 
-*/
-
-int exists(char * c){
-	int i = 0;
-	FILE* files = fopen("files.txt","a+");
-	char * line = NULL;
-	size_t size;
-	while(getline(&line,&size,files) > 0){
-		char * temp = strdup(line);
-		if(temp[strlen(temp) - 1] == '\n')
-			temp[strlen(temp) - 1] = '\0';
-		if(strcmp(temp,c)==0){
-			fclose(files);
-			return 1;
-		}
-		free(temp);
-	}
-	fclose(files);
-	return 0;
-}
+//g++ save.cpp save.h -std=c++0x -lboost_serialization
 
 
 /* Traverses the list of file names to see if a new file was added
@@ -34,73 +12,41 @@ int exists(char * c){
  
  */
 
-void handle_changes(){
-	DIR * dirp = fdopendir(g_fd);
+void PrintFolder::handle_changes(){
+	DIR * dirp = opendir("dw");
 	struct dirent *dp;
+	struct stat s;
+	pair<dev_t,ino_t> p;
 	while((dp = readdir(dirp))){
-
 		if(dp->d_type == DT_REG && dp->d_name[0]!='.'){
-			if(!exists(dp->d_name)){
-				printf("Filename: %s\n",dp->d_name );
-				FILE* files = fopen("files.txt","w");
-				if(!files)
-					perror("wfrwfefefe\n");
-				fprintf(files, "%s\n",dp->d_name);
-				fclose(files);
-				char * s = malloc(1024);
-				strcat(strcat(strcpy(s,"/Users/Bhawesh/Desktop/print_folder"),"/"),dp->d_name);
-				cups_dest_t *dests;
-				int num_dests = cupsGetDests(&dests);
-				cups_dest_t *dest = cupsGetDest(NULL, NULL, num_dests, dests);
-				if(cupsPrintFile(dest->name, s, "cairo PS", dest->num_options,dest->options)==0){
-					printf("error!!!\n");
-					puts(ippErrorString(cupsLastError()));  
-				}
-			}
-		}
-	}
-	lseek(g_fd,0,SEEK_SET);
-}
-
-int main(int argc, char **argv){
-	load();
-	struct	kevent event;	 /* Event we want to monitor */
-	struct	kevent tevent;	 /* Event triggered */
-	int kq, ret;
-	g_fd = open(argv[2], O_RDONLY); /* Get the dir from argv */
-	int log_fd = open("files.txt",O_RDWR|O_CREAT,S_IRWXO| S_IRWXG|S_IRWXU);
-	if(log_fd < 0){
-		printf("Error!\n");
-	}
-	if (g_fd == -1){
-		// add this to the err log (along with date)
-	    err(EXIT_FAILURE, "Failed to open '%s'", argv[1]);
-	   	exit(EXIT_FAILURE);
-	}
-	kq = kqueue();
-	if (kq	== -1){
-		// add this to the err log (along with date)
-	    err(EXIT_FAILURE, "kqueue() failed");
-	   	exit(EXIT_FAILURE);
-	}
-	EV_SET(&event, g_fd, EVFILT_VNODE, EV_ADD|EV_CLEAR, NOTE_WRITE, 0, NULL);	/* Add the folder to the queue (to monitor) */
-	ret = kevent(kq, &event, 1, NULL, 0, NULL);	/* start monitoring the folder */
-	if (ret == -1){
-		// add this to the err log (along with date)
-	    err(EXIT_FAILURE, "kevent register");
-	    exit(EXIT_FAILURE);
-	}
-	if (event.flags & EV_ERROR)
-		errx(EXIT_FAILURE,	"Event error: %s", strerror(event.data));
-
-	while(1) {
-		ret = kevent(kq, NULL, 0, &tevent, 1, NULL);	/* we don't want to store the event */
-		if(ret == -1) {
-			// add this to the err log (along with date)
-			err(EXIT_FAILURE, "kevent wait");
-		}else{
-			printf("wferfeferf\n");
-			handle_changes();
+			// stat("strcat(strcat(filename,/)",dp->d_name),&s);
+			// if(!data[p(s.st_dev,st_ino)]){
+			// 	data[p(s.st_dev,st_ino)] = true;
+			// }
 		}
 	}
 }
+
+void PrintFolder::save()
+{
+	std::ofstream file{filename};
+	text_oarchive oa{file};
+	oa << data;
+}
+
+void PrintFolder::load(){
+
+	std::ifstream file{filename};
+	file.seekg (0, file.end);
+    int length = file.tellg();
+    if(!length)
+    	return;
+    file.seekg(0, file.beg);
+	text_iarchive ia{file};
+	ia >> data;
+}
+
+void PrintFolder::add_to_map(std::pair<dev_t,ino_t> key, bool val){
+	data[key] = val;
+}
+
