@@ -12,7 +12,7 @@
  
  */
 
-void PrintFolder::handle_changes(){
+void PrintFolder::handle_changes( ){
 	DIR * dirp = opendir("dw");
 	struct dirent *dp;
 	struct stat s;
