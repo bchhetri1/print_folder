@@ -1,8 +1,13 @@
 #include "print_folder.h"
+PrintFolder pf;
 
+void savechanges(int signal){
+	cout<<"In the sigint handler"<<endl;
+	pf.save();
+}
 int main(int argc, char * argv[]){
+	signal(SIGINT, savechanges);
 	cout<<__LINE__<<endl;
-	PrintFolder pf;
 	cout<<__LINE__<<endl;
 	struct	kevent event;	 /* Event we want to monitor */
 	struct	kevent tevent;	 /* Event triggered */

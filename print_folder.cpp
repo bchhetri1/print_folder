@@ -16,13 +16,11 @@ void PrintFolder::handle_changes( ){
 	DIR * dirp = opendir("/Users/Bhawesh/Documents/print_folder");
 	struct dirent *dp;
 	struct stat s;
-	cout<<"In handle_changes\n"<<dirp<<endl;
 	while((dp = readdir(dirp))){
 		if(dp->d_type == DT_REG && dp->d_name[0]!='.'){
 			char path[1024];
 			stat(strcat(strcpy(path,"/Users/Bhawesh/Documents/print_folder/"),dp->d_name),&s);
 			pair<dev_t,ino_t> p(s.st_dev,s.st_ino);
-			cout<<"stat values are "<<s.st_dev<<" "<<s.st_ino<<endl;
 			if(!data[p]){
 				cout<<"Adding files...\n";
 				stat(dp->d_name,&s);
@@ -34,9 +32,11 @@ void PrintFolder::handle_changes( ){
 
 void PrintFolder::save()
 {
+	cout<<"Saving data.."<<endl;
 	std::ofstream file{filename};
 	text_oarchive oa{file};
 	oa << data;
+
 }
 
 void PrintFolder::load(){
@@ -51,5 +51,6 @@ void PrintFolder::load(){
 	ia >> data;
 }
 PrintFolder::PrintFolder(){
+	cout<<"Loading the file...."<<endl;
 	PrintFolder::load();
 }
