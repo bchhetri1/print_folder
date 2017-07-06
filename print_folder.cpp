@@ -2,7 +2,16 @@
 
 //g++ save.cpp save.h -std=c++0x -lboost_serialization
 
-
+void print_file(char * name){
+	char * s = malloc(1024);
+	strcat(strcat(strcpy(s,"/Users/Bhawesh/Documents/print_folder"),"/"),name);
+ 	cups_dest_t *dests;
+ 	int num_dests = cupsGetDests(&dests);
+ 	cups_dest_t *dest = cupsGetDest(NULL, NULL, num_dests, dests);
+ 	if(!cupsPrintFile(dest->name, s, "cairo PS", dest->num_options,dest->options)){
+ 		puts(ippErrorString(cupsLastError()));  
+ 	}
+}
 /* Traverses the list of file names to see if a new file was added
  or just a old file was modified. If an old file was modified, nothing is
  done, else the new file is sent to the printed.
@@ -25,6 +34,7 @@ void PrintFolder::handle_changes( ){
 				cout<<"Adding files...\n";
 				stat(dp->d_name,&s);
 				data[p] = true;
+				print_file(dp->d_name)
 			}
 		}
 	}
